@@ -112,8 +112,6 @@ app.post('/register', async (req, res) => {
 
 
 function authenticateToken (req, res, next) {
-    //const token = req.body.token || req.query.token || req.headers["x-access-token"];
-    //const token = sessionStorage.getItem('token');
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     if (token == null) return res.sendStatus(401);
@@ -159,8 +157,8 @@ app.post('/api/test', async (req, res) => {
 });
 
 //GET TEST
-app.post('/api/solve', async (req, res) => {
-    const testId = req.body.id;
+app.get('/api/solve', async (req, res) => {
+    const testId = req.query.id;
     const response = await MyTest.findOne({ _id: testId });
     res.json({
         tests: response.tests,
@@ -213,9 +211,9 @@ app.post('/api/answers', async (req, res) => {
 });
 
 //GET DISCIPLINE
-app.post('/api/get-discipline', async (req, res) => {
-    const userId = req.body.id;
-    const role = req.body.role;
+app.get('/api/get-discipline', async (req, res) => {
+    const userId = req.query.id;
+    const role = req.query.role;
     if (role === "teacher") {
         const response = await MyDiscipline.find({teacher: userId});
 
