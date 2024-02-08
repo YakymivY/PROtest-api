@@ -123,7 +123,13 @@ function authenticateToken (req, res, next) {
 }
 
 
-
+//FIND TESTNAME
+app.get('/api/find-testname', async (req, res) => {
+    const name = req.query.name;
+    const discipline = req.query.discipline;
+    const response = await MyTest.findOne({ name: name, disciplineId: discipline });
+    res.json(response);
+});
 
 //TEST CONSTRUCTOR
 app.post('/api/test', async (req, res) => {
