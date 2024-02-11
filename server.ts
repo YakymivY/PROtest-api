@@ -16,6 +16,8 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 //DATABASE
+const { MongoClient, ObjectId } = require('mongodb');
+
 mongoose.Promise = Promise;
 mongoose.connect('mongodb://localhost:27017/angulardb');
 
@@ -277,6 +279,16 @@ app.post('/api/add-discipline', async (req, res) => {
     
 });
 
+app.delete('/api/delete-discipline', async (req, res) => {
+    const id = req.query.id;
+    try {
+        const result = await MyDiscipline.deleteOne({ _id: id });
+        res.status(200).json({ status: 'success', result });
+    } catch (e) {
+        res.status(500).json({ error: e });
+    }
+});
+
 //ADD STUDENT
 app.post('/api/add-student', async (req, res) => {
     const email = req.body.email;
@@ -312,6 +324,37 @@ app.post('/api/add-student', async (req, res) => {
             res.json(student);
         }
     }
+});
+
+//REMOVE STUDENT 
+app.post('/api/remove-student', async (req, res) => {
+    const d_id = req.body.discipline;
+    const s_id = req.body.student;
+    console.log(d_id, s_id);
+
+    //updating discipline
+    const s_objectid = new ObjectId(s_id);
+    const filter = { _id: d_id };
+    const update = { $pull: { students: s_objectid } };
+    MyDiscipline.updateOne(filter, update).then((result) => {
+        console.log('Value removed from array successfully');
+        //updating student
+        const filter2 = { _id: s_id };
+        const update2 = { $pull: { disciplines: d_id } };
+        MyUser.updateOne(filter2, update2).then((result) => {
+            console.log('Value removed from array successfully');
+            res.status(200).json({ status: 'success', result });
+        })
+        .catch((err) => {
+            console.error('Failed to update document: ', err);
+            res.status(500).json({ error: err });
+        });
+    })
+    .catch((err) => {
+        console.error('Failed to update document: ', err);
+        res.status(500).json({ error: err });
+    });
+    
 });
 
 app.listen(3000);
